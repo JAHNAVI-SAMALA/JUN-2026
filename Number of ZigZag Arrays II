@@ -1,0 +1,57 @@
+class Solution:
+    def zigZagArrays(self, n: int, l: int, r: int) -> int:
+        MOD = 10**9 + 7
+        m = r - l + 1
+
+        def matmul(A, B):
+            n = len(A)
+            C = [[0] * n for _ in range(n)]
+
+            for i in range(n):
+                for k in range(n):
+                    if A[i][k]:
+                        for j in range(n):
+                            C[i][j] = (C[i][j] + A[i][k] * B[k][j]) % MOD
+            return C
+
+        def matpow(A, p):
+            n = len(A)
+            R = [[0] * n for _ in range(n)]
+
+            for i in range(n):
+                R[i][i] = 1
+
+            while p:
+                if p & 1:
+                    R = matmul(R, A)
+
+                A = matmul(A, A)
+                p >>= 1
+
+            return R
+
+        up = [[0] * m for _ in range(m)]
+        down = [[0] * m for _ in range(m)]
+
+        for i in range(m):
+            for j in range(i):
+                up[i][j] = 1
+
+            for j in range(i + 1, m):
+                down[i][j] = 1
+
+        n -= 1
+
+        T = matmul(up, down)
+        V = matpow(T, n // 2)
+
+        if n % 2:
+            V = matmul(V, up)
+
+        ans = 0
+
+        for i in range(m):
+            for j in range(m):
+                ans = (ans + V[i][j]) % MOD
+
+        return (ans * 2) % MOD
